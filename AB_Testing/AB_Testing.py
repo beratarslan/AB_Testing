@@ -1,83 +1,90 @@
 ######################################################
-# AB Testing (Bağımsız İki Örneklem T Testi)
+# AB Testing (Independent Two-Sample T-Test)
 ######################################################
 
+# Load the dataset
 df = sns.load_dataset("tips")
 df.head()
 
+# Group the dataset by smoker status and calculate the mean of total bill for each group
 df.groupby("smoker").agg({"total_bill": "mean"})
 
 ############################
-# 1. Hipotezi Kur
+# 1. Form the Hypotheses
 ############################
 
 # H0: M1 = M2
 # H1: M1 != M2
 
 ############################
-# 2. Varsayım Kontrolü
+# 2. Assumption Check
 ############################
 
-# Normallik Varsayımı
-# Varyans Homojenliği
+# Normality Assumption
+# Homogeneity of Variance
 
 ############################
-# Normallik Varsayımı
+# Normality Assumption
 ############################
 
-# H0: Normal dağılım varsayımı sağlanmaktadır.
-# H1:..sağlanmamaktadır.
+# H0: The normality assumption is satisfied.
+# H1: The normality assumption is not satisfied.
 
-
+# Perform the Shapiro-Wilk test for normality for smokers
 test_stat, pvalue = shapiro(df.loc[df["smoker"] == "Yes", "total_bill"])
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
-# p-value < ise 0.05'ten HO RED.
-# p-value < değilse 0.05 H0 REDDEDILEMEZ.
+# If p-value < 0.05, reject H0.
+# If p-value >= 0.05, fail to reject H0.
 
-
+# Perform the Shapiro-Wilk test for normality for non-smokers
 test_stat, pvalue = shapiro(df.loc[df["smoker"] == "No", "total_bill"])
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
-
 ############################
-# Varyans Homojenligi Varsayımı
+# Homogeneity of Variance Assumption
 ############################
 
-# H0: Varyanslar Homojendir
-# H1: Varyanslar Homojen Değildir
+# H0: The variances are homogeneous.
+# H1: The variances are not homogeneous.
 
+# Perform the Levene's test for homogeneity of variance
 test_stat, pvalue = levene(df.loc[df["smoker"] == "Yes", "total_bill"],
                            df.loc[df["smoker"] == "No", "total_bill"])
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
-# p-value < ise 0.05 'ten HO RED.
-# p-value < değilse 0.05 H0 REDDEDILEMEZ.
+# If p-value < 0.05, reject H0.
+# If p-value >= 0.05, fail to reject H0.
+
 
 ############################
-# 3 ve 4. Hipotezin Uygulanması
+# Application of Hypotheses 3 and 4
 ############################
 
-# 1. Varsayımlar sağlanıyorsa bağımsız iki örneklem t testi (parametrik test)
-# 2. Varsayımlar sağlanmıyorsa mannwhitneyu testi (non-parametrik test)
+# 1. If assumptions are met, perform the independent two-sample t-test (parametric test)
+# 2. If assumptions are not met, perform the Mann-Whitney U test (non-parametric test)
+
 
 ############################
-# 1.1 Varsayımlar sağlanıyorsa bağımsız iki örneklem t testi (parametrik test)
+# 1.1 If Assumptions are Met, Perform the Independent Two-Sample T-Test (Parametric Test)
 ############################
 
+# Perform the independent two-sample t-test assuming equal variances
 test_stat, pvalue = ttest_ind(df.loc[df["smoker"] == "Yes", "total_bill"],
                               df.loc[df["smoker"] == "No", "total_bill"],
                               equal_var=True)
 
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
-# p-value < ise 0.05 'ten HO RED.
-# p-value < değilse 0.05 H0 REDDEDILEMEZ.
+# If p-value < 0.05, reject H0.
+# If p-value >= 0.05, fail to reject H0.
+
 
 ############################
-# 1.2 Varsayımlar sağlanmıyorsa mannwhitneyu testi (non-parametrik test)
+# 1.2 If Assumptions are Not Met, Perform the Mann-Whitney U Test (Non-Parametric Test)
 ############################
 
+# Perform the Mann-Whitney U test
 test_stat, pvalue = mannwhitneyu(df.loc[df["smoker"] == "Yes", "total_bill"],
                                  df.loc[df["smoker"] == "No", "total_bill"])
 
@@ -87,51 +94,54 @@ print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
 
 
-
 ############################
-# Uygulama 2: Titanic Kadın ve Erkek Yolcuların Yaş Ortalamaları Arasında İstatistiksel Olarak Anl. Fark. var mıdır?
+# Application 2: Is There a Statistically Significant Difference Between the Average Ages of Female and Male Passengers on the Titanic?
 ############################
 
+# Load the Titanic dataset
 df = sns.load_dataset("titanic")
 df.head()
 
+# Group the dataset by sex and calculate the mean age for each group
 df.groupby("sex").agg({"age": "mean"})
 
 
-# 1. Hipotezleri kur:
-# H0: M1  = M2 (Kadın ve Erkek Yolcuların Yaş Ortalamaları Arasında İstatistiksel Olarak Anl. Fark. Yoktur)
-# H1: M1! = M2 (... vardır)
+# 1. Form the Hypotheses:
+# H0: M1 = M2 (There is no statistically significant difference between the average ages of female and male passengers)
+# H1: M1 != M2 (There is a statistically significant difference between the average ages)
 
 
-# 2. Varsayımları İncele
+# 2. Check Assumptions
 
-# Normallik varsayımı
-# H0: Normal dağılım varsayımı sağlanmaktadır.
-# H1:..sağlanmamaktadır
+# Normality assumption
+# H0: The normality assumption is satisfied.
+# H1: The normality assumption is not satisfied.
 
-
+# Perform the Shapiro-Wilk test for normality for female passengers
 test_stat, pvalue = shapiro(df.loc[df["sex"] == "female", "age"].dropna())
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
+# Perform the Shapiro-Wilk test for normality for male passengers
 test_stat, pvalue = shapiro(df.loc[df["sex"] == "male", "age"].dropna())
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
-# Varyans homojenliği
-# H0: Varyanslar Homojendir
-# H1: Varyanslar Homojen Değildir
+# Homogeneity of variance assumption
+# H0: The variances are homogeneous.
+# H1: The variances are not homogeneous.
 
+# Perform the Levene's test for homogeneity of variance between female and male passengers
 test_stat, pvalue = levene(df.loc[df["sex"] == "female", "age"].dropna(),
                            df.loc[df["sex"] == "male", "age"].dropna())
 
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
-# Varsayımlar sağlanmadığı için nonparametrik
+# Since assumptions are not met, perform the non-parametric test
 
+# Perform the Mann-Whitney U test
 test_stat, pvalue = mannwhitneyu(df.loc[df["sex"] == "female", "age"].dropna(),
                                  df.loc[df["sex"] == "male", "age"].dropna())
 
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
-
 
 # 90 280
 
@@ -139,61 +149,70 @@ print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
 
 ############################
-# Uygulama 3: Diyabet Hastası Olan ve Olmayanların Yaşları Ort. Arasında İst. Ol. Anl. Fark var mıdır?
+# Application 3: Is There a Statistically Significant Difference Between the Average Ages of Diabetic and Non-Diabetic Patients?
 ############################
 
+# Load the diabetes dataset
 df = pd.read_csv("datasets/diabetes.csv")
 df.head()
 
+# Group the dataset by outcome and calculate the mean age for each group
 df.groupby("Outcome").agg({"Age": "mean"})
 
-# 1. Hipotezleri kur
+# 1. Form the Hypotheses:
 # H0: M1 = M2
-# Diyabet Hastası Olan ve Olmayanların Yaşları Ort. Arasında İst. Ol. Anl. Fark Yoktur
+# There is no statistically significant difference between the average ages of diabetic and non-diabetic patients
 # H1: M1 != M2
-# .... vardır.
+# There is a statistically significant difference between the average ages
 
-# 2. Varsayımları İncele
 
-# Normallik Varsayımı (H0: Normal dağılım varsayımı sağlanmaktadır.)
+# 2. Check Assumptions
+
+# Normality assumption (H0: The normality assumption is satisfied)
+# Perform the Shapiro-Wilk test for normality for diabetic patients (Outcome = 1)
 test_stat, pvalue = shapiro(df.loc[df["Outcome"] == 1, "Age"].dropna())
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
+# Perform the Shapiro-Wilk test for normality for non-diabetic patients (Outcome = 0)
 test_stat, pvalue = shapiro(df.loc[df["Outcome"] == 0, "Age"].dropna())
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
+# Since the normality assumption is not met, perform the non-parametric test.
 
-
-# Normallik varsayımı sağlanmadığı için nonparametrik.
-
-# Hipotez (H0: M1 = M2)
+# Hypothesis (H0: M1 = M2)
+# Perform the Mann-Whitney U test
 test_stat, pvalue = mannwhitneyu(df.loc[df["Outcome"] == 1, "Age"].dropna(),
                                  df.loc[df["Outcome"] == 0, "Age"].dropna())
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
 
+
 ###################################################
-# İş Problemi: Kursun Büyük Çoğunluğunu İzleyenler ile İzlemeyenlerin Puanları Birbirinden Farklı mı?
+# Business Problem: Is There a Difference in Scores Between Those Who Watched Most of the Course and Those Who Did Not?
 ###################################################
 
-# H0: M1 = M2 (... iki grup ortalamaları arasında ist ol.anl.fark yoktur.)
-# H1: M1 != M2 (...vardır)
+# H0: M1 = M2 (... there is no statistically significant difference between the means of the two groups)
+# H1: M1 != M2 (... there is a statistically significant difference)
 
+# Load the dataset
 df = pd.read_csv("datasets/course_reviews.csv")
 df.head()
 
+# Calculate the mean rating for those who watched more than 75% of the course
 df[(df["Progress"] > 75)]["Rating"].mean()
 
+# Calculate the mean rating for those who watched less than 25% of the course
 df[(df["Progress"] < 25)]["Rating"].mean()
 
-
+# Perform the Shapiro-Wilk test for normality for the group who watched more than 75% of the course
 test_stat, pvalue = shapiro(df[(df["Progress"] > 75)]["Rating"])
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
-
+# Perform the Shapiro-Wilk test for normality for the group who watched less than 25% of the course
 test_stat, pvalue = shapiro(df[(df["Progress"] < 25)]["Rating"])
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
+# Since the normality assumption is not met, perform the Mann-Whitney U test
 test_stat, pvalue = mannwhitneyu(df[(df["Progress"] > 75)]["Rating"],
                                  df[(df["Progress"] < 25)]["Rating"])
 
@@ -201,44 +220,54 @@ print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
 
 
 ######################################################
-# AB Testing (İki Örneklem Oran Testi)
+# AB Testing (Two-Sample Proportion Test)
 ######################################################
 
 # H0: p1 = p2
-# Yeni Tasarımın Dönüşüm Oranı ile Eski Tasarımın Dönüşüm Oranı Arasında İst. Ol. Anlamlı Farklılık Yoktur.
+# There is no statistically significant difference between the conversion rate of the new design and the old design.
 # H1: p1 != p2
-# ... vardır
+# There is a statistically significant difference.
 
+# Success counts for both designs
 basari_sayisi = np.array([300, 250])
+# Observation counts for both designs
 gozlem_sayilari = np.array([1000, 1100])
 
+# Perform the two-sample z-test for proportions
 proportions_ztest(count=basari_sayisi, nobs=gozlem_sayilari)
 
-
+# Calculate the conversion rates for both designs
 basari_sayisi / gozlem_sayilari
 
 
+
 ############################
-# Uygulama: Kadın ve Erkeklerin Hayatta Kalma Oranları Arasında İst. Olarak An. Farklılık var mıdır?
+# Application: Is There a Statistically Significant Difference in Survival Rates Between Women and Men?
 ############################
 
 # H0: p1 = p2
-# Kadın ve Erkeklerin Hayatta Kalma Oranları Arasında İst. Olarak An. Fark yoktur
+# There is no statistically significant difference between the survival rates of women and men.
 
 # H1: p1 != p2
-# .. vardır
+# There is a statistically significant difference.
 
+# Load the Titanic dataset
 df = sns.load_dataset("titanic")
 df.head()
 
+# Calculate the survival rate for female passengers
 df.loc[df["sex"] == "female", "survived"].mean()
 
+# Calculate the survival rate for male passengers
 df.loc[df["sex"] == "male", "survived"].mean()
 
+# Calculate the success counts for female and male passengers
 female_succ_count = df.loc[df["sex"] == "female", "survived"].sum()
 male_succ_count = df.loc[df["sex"] == "male", "survived"].sum()
 
+# Perform the two-sample z-test for proportions
 test_stat, pvalue = proportions_ztest(count=[female_succ_count, male_succ_count],
                                       nobs=[df.loc[df["sex"] == "female", "survived"].shape[0],
                                             df.loc[df["sex"] == "male", "survived"].shape[0]])
 print('Test Stat = %.4f, p-value = %.4f' % (test_stat, pvalue))
+
